@@ -3,9 +3,15 @@
 using namespace std;
 
 template<class T>
-Binary_search<T>::Binary_search(const vector<T>& data)
+Binary_search<T>::Binary_search(const vector<T>& data) : data_(data), iterations_(0)
 {
-  data_ = data;
+
+}
+
+template<class T>
+Binary_search<T>::~Binary_search()
+{
+
 }
 
 template<class T>
@@ -21,55 +27,50 @@ vector<T> Binary_search<T>::Get_data() const
 }
 
 template<class T>
+size_t Binary_search<T>::Get_iterations() const
+{
+  return iterations_;
+}
+
+template<class T>
 void Binary_search<T>::Set_data(const vector<T>& data)
 {
-  data_ = data;
+  data_ = { data };
 }
 
 template<class T>
-Binary_search<T>::~Binary_search()
-{
-
-}
-
-template<class T>
-bool Binary_search<T>::Find(T element, size_t& result) const
+bool Binary_search<T>::Find(T to_find, size_t& result)
 {
   size_t size = data_.size();
 
   if (0 == size)
   {
+    iterations_ = 0;
     return false;
   }
 
-  bool even = false;
-
   size_t index = size / 2;
 
-  if (data_.size() % 2 == 0)
-  {
-    // Even number of elements.
-    --index;
-
-    even = true;
-  }
+  iterations_ = 1;
 
   while (true)
   {
-    if (element > data_.at(index))
+    if (to_find > data_.at(index))
     {
       // Continue to search in upper part of array.
 
-      size_t add = static_cast<size_t>(floor((size - index) / 2.0));
+      size_t index_inc = static_cast<size_t>(floor((size - index) / 2.0));
 
-      if (0 == add)
+      ++iterations_;
+
+      if (0 == index_inc)
       {
         // To reach the very end of array.
         ++index;
       }
       else
       {
-        index += add;
+        index += index_inc;
       }
 
       if (index >= size)
@@ -77,14 +78,11 @@ bool Binary_search<T>::Find(T element, size_t& result) const
         // Requested item isn't here.
         return false;
       }
-
-      if (even)
-      {
-        //++index;
-      }
     }
-    else if (element < data_.at(index))
+    else if (to_find < data_.at(index))
     {
+      ++iterations_;
+
       if (index != 0)
       {
         index -= static_cast<size_t>(ceil(index / 2.0));
@@ -95,20 +93,85 @@ bool Binary_search<T>::Find(T element, size_t& result) const
         return false;
       }
 
-      if (even)
-      {
-        //++index;
-      }
-
       // Continue to search in lower part of array.
     }
 
-    if (element == data_.at(index))
+    if (to_find == data_.at(index))
     {
       // Found it.
 
       result = index;
       return true;
+    }
+  }
+
+  return false;
+}
+
+template<class T>
+size_t Binary_search<T>::Find(T to_find) noexcept(false)
+{
+  size_t size = data_.size();
+
+  if (0 == size)
+  {
+    iterations_ = 0;
+
+    throw Binary_search_ex("No data to search through");
+  }
+
+  size_t index = size / 2;
+
+  iterations_ = 1;
+
+  while (true)
+  {
+    if (to_find > data_.at(index))
+    {
+      // Continue to search in upper part of array.
+
+      size_t index_inc = static_cast<size_t>(floor((size - index) / 2.0));
+
+      ++iterations_;
+
+      if (0 == index_inc)
+      {
+        // To reach the very end of array.
+        ++index;
+      }
+      else
+      {
+        index += index_inc;
+      }
+
+      if (index >= size)
+      {
+        // Requested item isn't here.
+        throw Binary_search_ex("Failed to find the item");
+      }
+    }
+    else if (to_find < data_.at(index))
+    {
+      ++iterations_;
+
+      if (index != 0)
+      {
+        index -= static_cast<size_t>(ceil(index / 2.0));
+      }
+      else
+      {
+        // Requested item isn't here.
+        throw Binary_search_ex("Failed to find the item");
+      }
+
+      // Continue to search in lower part of array.
+    }
+
+    if (to_find == data_.at(index))
+    {
+      // Found it.
+
+      return index;
     }
   }
 
@@ -132,7 +195,42 @@ bool Binary_search<T>::Find(T element, size_t& result) const
 
 int main()
 {
-  //Test();
+  cout << "Error codes:\n";
+
+  do
+  {
+    double to_find { 1.0 };
+    Binary_search<double> bs({ 1.0, 2.0, 3.0, 4.0 });
+    size_t res {};
+
+    bool found  { bs.Find(to_find, res) };
+    size_t iter { bs.Get_iterations() };
+
+    cout << "found " << boolalpha << found << " iter " << iter << " res " << res << " to_find " << to_find << endl;
+  }
+  while (false);
+
+  cout << "Exceptions:\n";
+
+  do
+  {
+    double to_find { 2.0 };
+    Binary_search<double> bs({ 1.0, 2.0, 3.0, 4.0 });
+
+    try
+    {
+      size_t res  { bs.Find(to_find) };
+
+      size_t iter { bs.Get_iterations() };
+
+      cout << "found iter " << iter << " res " << res << " to_find " << to_find << endl;
+    }
+    catch (Binary_search_ex& ex)
+    {
+      cerr << "Exception: " << ex.what() << endl;
+    }
+
+  } while (false);
 
   cin.get();
 }
