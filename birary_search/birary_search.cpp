@@ -11,7 +11,12 @@ Binary_search<T>::Binary_search(const vector<T>& data) : data_(data), iterations
 template<class T>
 Binary_search<T>::~Binary_search()
 {
+  cerr << "~Binary_search\n";
 
+  data_.clear();
+  data_.shrink_to_fit();
+
+  iterations_ = {};
 }
 
 template<class T>
