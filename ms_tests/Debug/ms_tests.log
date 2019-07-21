@@ -1,1 +1,4 @@
-﻿  ms_tests.vcxproj -> D:\Visual_Studio_Projects\C++\Study\birary_search\Debug\ms_tests.dll
+﻿  stdafx.cpp
+  unittest1.cpp
+     Creating library D:\Visual_Studio_Projects\C++\Study\birary_search\Debug\ms_tests.lib and object D:\Visual_Studio_Projects\C++\Study\birary_search\Debug\ms_tests.exp
+  ms_tests.vcxproj -> D:\Visual_Studio_Projects\C++\Study\birary_search\Debug\ms_tests.dll
